@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>SIAF</title>
+	<script type="text/javascript" src="./jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="./three.min.js"></script>
+	<script type="text/javascript" src="./paview.js"></script>
+	<style>
+	body {
+		background-color:rgb(0,0,0);
+	}
+	</style>
+</head>
+
+<body>
+	<div id="movie" style="position:absolute; left:0px; top:0px;"></div>
+	<script type="text/javascript" >
+		var img1 = new PaView({
+			id:'movie',
+			file:'snowplow_3_960_2.mp4',
+			width:document.documentElement.clientWidth,
+			height:document.documentElement.clientHeight,
+			srcwidth:1920,
+			srcheight:960,
+			firstview: 270,
+			degree: [0, 0, 0]
+		});
+	</script>
+</body>
+</html>

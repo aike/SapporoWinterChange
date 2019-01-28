@@ -1,0 +1,10 @@
+
+# dependencies
+node/node_modules
+
+# production
+/build
+
+# misc
+.DS_Store
+*.mp4

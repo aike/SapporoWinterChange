@@ -1,0 +1,57 @@
+{
+    "mappings": {
+        "sensor_data":{
+            "properties":{
+                "timestamp":{
+                    "type":"date",
+                    "format":"YYYY-MM-dd HH:mm:ss"
+                },
+                "location":{
+                    "type": "geo_point",
+                    "index": "false"
+                },
+                "accel_x":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "accel_y":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "accel_z":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "gyro_x":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "gyro_y":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "gyro_z":{
+                    "type": "integer",
+                    "index": "false"
+                },
+                "magnet_x":{
+                    "type": "float",
+                    "index": "false"
+                },
+                "magnet_y":{
+                    "type": "float",
+                    "index": "false"
+                },
+                "magnet_z":{
+                    "type": "float",
+                    "index": "false"
+                },
+                "bearing":{
+                    "type": "float",
+                    "index": "false"
+                }
+            }
+        }
+    }
+}
+

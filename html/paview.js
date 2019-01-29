@@ -61,6 +61,11 @@ var PaView = function(arg) {
 	this.fading = false;
 	this.seekwait = 0;
 
+	// notify filename
+	setTimeout(() => {
+		this.wsOsc.send('/mv/file', 's', this.file.replace(/^.*\//, ''));
+	}, 100);
+
 	///////// call main process
 	this.show();
 }
@@ -405,6 +410,7 @@ PaView.prototype.show = function() {
 		if ((self.mousedown) && (e.pageX === self.mouseDownPos.x) && (e.pageY === self.mouseDownPos.y)) {
 			if (!self.playing) {
 				if ((e.pageX < self.backbtn.width * 1.5) && (e.pageY < self.backbtn.height * 1.5)) {
+					self.wsOsc.send('/mv/menu', 's', '');
 					window.location.href = "index.html";
 					return;
 				}

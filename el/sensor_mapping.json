@@ -6,6 +6,10 @@
                     "type":"date",
                     "format":"YYYY-MM-dd HH:mm:ss"
                 },
+                "time":{
+                    "type":"date",
+                    "format":"HH:mm:ss"
+                },
                 "location":{
                     "type": "geo_point",
                     "index": "false"

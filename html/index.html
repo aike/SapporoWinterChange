@@ -7,9 +7,9 @@
 		@import url(https://fonts.googleapis.com/earlyaccess/notosansjapanese.css);
 	body {
 		background-color:#f8f8f8;
-		background-image: url("./logo.png");
+/*		background-image: url("./logo.png"); */
 		background-position-x: 100px;
-		background-position-y: 30px;
+		background-position-y: 100px;
 		background-repeat: no-repeat;
 		/* font-family: serif; */
 		font-family: 'Noto Sans Japanese';
@@ -17,16 +17,39 @@
 	}
 	#title {
 		color: #444444;
-		font-size: 32px;
 		text-align:center;
-		margin-top: 30px;
+		margin-top: 25px;
+		font-size: 45px;
 	}
+	#left {
+		position: absolute;
+		left: 0%;
+		top: 18vh;
+		width: 25%;
+		height: 45vh;
+		text-align: right;
+		border-right:solid 2px #aaa;
+		color: #666666;
+		padding-right: 60px;
+		padding-top: 185px;
+		font-size: 45px;
+	}
+	#right {
+		position: absolute;
+		left: 25%;
+		top: 18vh;
+		width: 55%;
+		height: 45vh;
+		padding-left: 80px;
+		font-size: 55px;
+	}
+
 	ul {
-		margin: 50px 0px 0px 300px;
+		margin: 50px 0px 0px 0px;
 	}
 	li {
 		list-style-type: none;
-		font-size: 32px;
+		line-height: 200%;
 	}
 	a  { text-decoration: none; }
 	a:link    { color: #888888; }
@@ -37,11 +60,14 @@
 </head>
 
 <body>
-	<div id="title">除雪作業パノラマ動画</div>
-	<ul>
-		<li><a href="mov1.html">1. 除雪グレーダ</a></li>
-		<li><a href="mov2.html">2. ロータリー除雪車</a></li>
-		<li><a href="mov3.html">3. 除雪ドーザ</a></li>
-	</ul>
+	<div id="title">除雪重機パノラマ動画</div>
+	<div id="left">menu</div>
+	<div id="right">
+		<ul>
+			<li><a href="mov1.html">除雪グレーダ</a></li>
+			<li><a href="mov2.html">ロータリー除雪車</a></li>
+			<li><a href="mov3.html">除雪ドーザ</a></li>
+		</ul>
+	</div>
 </body>
 </html>

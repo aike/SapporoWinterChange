@@ -436,6 +436,8 @@ PaView.prototype.show = function() {
 		self.oldPosition = {x:e.pageX, y:e.pageY};
 		self.element.style.cursor = 'move';
 	};
+
+
 	this.element.onmousemove = function(e) { self.rotateCamera(e.pageX, e.pageY); };
 
 	// chrome / safari / IE

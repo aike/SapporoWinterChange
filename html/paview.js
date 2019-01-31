@@ -62,6 +62,8 @@ var PaView = function(arg) {
 	this.seekwait = 0;
 	this.isTouchDevice = false;
 
+	this.cnt = 0;
+
 	// notify filename
 	setTimeout(() => {
 		this.wsOsc.send('/mv/file', 's', this.file.replace(/^.*\//, ''));
@@ -108,8 +110,14 @@ PaView.prototype.zoomCamera = function(val) {
 
 ///////// rotation callback
 PaView.prototype.setCameraDir = function(alpha, beta, gamma) {
-	// console.log(window.orientation);
-	// console.log(alpha, beta, gamma);
+
+	// this.cnt++;
+	// if (this.cnt > 30) {
+	// 	this.cnt = 0;
+	// 	console.log('oren:' + window.orientation + ' al:' + alpha + ' bt:' + beta + ' gamma:' + gamma);
+	// 	console.log(' x:' + (-gamma - Math.PI / 2) + ' gamma:' + gamma);
+	// }
+
 	switch (window.orientation) {
 		case 0:
 			this.mesh.rotation.x = this.degree[0] + Math.PI + Math.PI / 2;
@@ -123,7 +131,7 @@ PaView.prototype.setCameraDir = function(alpha, beta, gamma) {
 			this.mesh.rotation.x = this.degree[0] + Math.PI;
 			this.mesh.rotation.y = this.degree[1] + alpha - Math.PI / 2;
 			this.mesh.rotation.z = this.degree[2];
-			this.camera.rotation.x = -gamma - Math.PI / 2;
+			this.camera.rotation.x = (-gamma - Math.PI / 2) * -Math.sign(gamma);
 			this.camera.rotation.y = 0;
 			this.camera.rotation.z = -beta;
 			break;
@@ -131,7 +139,7 @@ PaView.prototype.setCameraDir = function(alpha, beta, gamma) {
 			this.mesh.rotation.x = this.degree[0] + Math.PI;
 			this.mesh.rotation.y = this.degree[1] + alpha - Math.PI / 2;
 			this.mesh.rotation.z = this.degree[2] + 0;
-			this.camera.rotation.x = -(-gamma - Math.PI / 2);
+			this.camera.rotation.x = -(-gamma - Math.PI / 2) * -Math.sign(gamma);
 			this.camera.rotation.y = 0;
 			this.camera.rotation.z = -beta + Math.PI;
 			break;
@@ -155,9 +163,8 @@ PaView.prototype.play = function() {
 }
 
 PaView.prototype.pause = function() {
-	console.log('pause');
-	console.log(this.playing);
 	if (this.playing) {
+		console.log('pause');
 		this.wsOsc.send('/mv/pause', 'f', this.video.currentTime);
 		this.video.pause();
 		this.btn.style.display = 'block';
@@ -166,6 +173,7 @@ PaView.prototype.pause = function() {
 		if (this.info)
 			this.info.style.display = 'block';
 	} else {
+		console.log('play');
 		this.wsOsc.send('/mv/play', 'f', this.video.currentTime);
 		this.video.play();
 		this.btn.style.display = 'none';
@@ -359,13 +367,42 @@ PaView.prototype.show = function() {
 
 	this.ignoreEvent = false;
 	this.ctrl.onmousedown = function(e) {
+		if (self.isTouchDevice) {
+			e.preventDefault();
+			return;
+		}
+		self.ctlDownCallback(e.layerX);
+		e.preventDefault();
+	};
+	this.ctrl.onmouseup = function(e) {
+		if (self.isTouchDevice) {
+			e.preventDefault();
+			return;
+		}
+		self.ctlUpCallback(e.layerX);
+		e.preventDefault();
+	};
+
+	this.ctrl.addEventListener('touchstart', function(e) {
+		self.isTouchDevice = true;
+		self.ctlDownCallback(e.changedTouches[0].clientX);
+		e.preventDefault();
+	});
+
+	this.ctrl.addEventListener('touchend', function(e) {
+		self.ctlUpCallback(e.changedTouches[0].clientX);
+		e.preventDefault();
+	});
+
+	this.ctlDownCallback = function(px)
+	{
 		self.ignoreEvent = true;
-		var videopos = (e.layerX - 10) / self.barlen;
+		var videopos = (px - 10) / self.barlen;
 		if ((videopos >= 0.0) && (videopos <= 1.0)) {
 			self.seekwait = 20;
 			self.drawCtrlBar(videopos);
 		}
-		var volumepos = (e.layerX - self.barlen - 20);
+		var volumepos = (px - self.barlen - 20);
 		var volume = -1;
 		if ((volumepos >= -10) && (volumepos <= 0)) {
 			volume = 0;
@@ -377,18 +414,19 @@ PaView.prototype.show = function() {
 		if (volume >= 0) {
 			self.video.volume = volume;
 		}
-		e.preventDefault();
 	};
-	this.ctrl.onmouseup = function(e) {
+
+	this.ctlUpCallback = function(px)
+	{
 		// video seek
-		var videopos = (e.layerX - 10) / self.barlen;
+		var videopos = (px - 10) / self.barlen;
 		if ((videopos >= 0.0) && (videopos <= 1.0)) {
+			console.log('seek');
 			self.video.currentTime = self.video.duration * videopos;
 			self.wsOsc.send('/mv/seek', 'f', self.video.currentTime);
 		}
-
-		e.preventDefault();
 	};
+
 
 	this.element.appendChild(this.ctrl);
 
@@ -406,15 +444,15 @@ PaView.prototype.show = function() {
 
 	///////// callback setting
 	this.element.onmousedown = function(e) {
-		if (isTouchDevice) return;
-		console.log('onmousedown');
-		self.downCallback(e.pageX, e.pageY);
+		if (self.isTouchDevice) return;
+		//console.log('onmousedown');
+		self.elemDownCallback(e.pageX, e.pageY);
 	};
 
 	document.onmouseup = function(e) {
-		if (isTouchDevice) return;
-		console.log('onmouseup');
-		self.upCallback(e.pageX, e.pageY);
+		if (self.isTouchDevice) return;
+		//console.log('onmouseup');
+		self.elemUpCallback(e.pageX, e.pageY);
 	};
 
 	this.element.onmousemove = function(e) {
@@ -422,18 +460,18 @@ PaView.prototype.show = function() {
 	};
 
 	this.element.addEventListener('touchstart', function(e) {
-		console.log('touchstart');
-		isTouchDevice = true;
-		self.downCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+		//console.log('touchstart');
+		self.isTouchDevice = true;
+		self.elemDownCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 	});
 
 	this.element.addEventListener('touchend', function(e) {
-		console.log('touchend');
-		self.upCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+		//console.log('touchend');
+		self.elemUpCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 	});
 
 
-	this.downCallback  = function(px, py) {
+	this.elemDownCallback  = function(px, py) {
 		if (self.ignoreEvent) {
 			self.ignoreEvent = false;
 			return;
@@ -444,7 +482,7 @@ PaView.prototype.show = function() {
 		self.element.style.cursor = 'move';
 	};
 
-	this.upCallback  = function(px, py) {
+	this.elemUpCallback  = function(px, py) {
 		self.element.style.cursor = 'default';
 		if ((self.mousedown) && (px === self.mouseDownPos.x) && (py === self.mouseDownPos.y)) {
 			if (!self.playing) {
@@ -458,11 +496,6 @@ PaView.prototype.show = function() {
 		}
 		self.mousedown = false;
 	};
-
-	this.moveCallback  = function(x, y) {
-
-	};
-
 
 
 	// chrome / safari / IE

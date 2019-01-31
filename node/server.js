@@ -55,7 +55,7 @@ wss.on('connection', function (ws) {
 ////////////////////////////////
 
 async function entry(json) {
-    console.log('send:' + json.timestamp);
+    console.log('send:' + json.time + ' ' + json.timestamp);
     await client.index({index:"sensor", type:"sensor_data", body:json});
 }
 
@@ -78,6 +78,7 @@ setInterval(()=> {
 		return;
 	}
     if (i >= data[sel].length) {
+    	return;
         j++;
         if (j > 5) {
             del({"match_all":{}});

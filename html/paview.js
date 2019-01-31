@@ -60,6 +60,7 @@ var PaView = function(arg) {
 	///////// etc
 	this.fading = false;
 	this.seekwait = 0;
+	this.isTouchDevice = false;
 
 	// notify filename
 	setTimeout(() => {
@@ -404,12 +405,50 @@ PaView.prototype.show = function() {
 	this.element.appendChild(renderer.domElement);	// append to <DIV>
 
 	///////// callback setting
+	this.element.onmousedown = function(e) {
+		if (isTouchDevice) return;
+		console.log('onmousedown');
+		self.downCallback(e.pageX, e.pageY);
+	};
+
 	document.onmouseup = function(e) {
+		if (isTouchDevice) return;
 		console.log('onmouseup');
+		self.upCallback(e.pageX, e.pageY);
+	};
+
+	this.element.onmousemove = function(e) {
+		self.rotateCamera(e.pageX, e.pageY);
+	};
+
+	this.element.addEventListener('touchstart', function(e) {
+		console.log('touchstart');
+		isTouchDevice = true;
+		self.downCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+	});
+
+	this.element.addEventListener('touchend', function(e) {
+		console.log('touchend');
+		self.upCallback(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+	});
+
+
+	this.downCallback  = function(px, py) {
+		if (self.ignoreEvent) {
+			self.ignoreEvent = false;
+			return;
+		}
+		self.mousedown = true;
+		self.mouseDownPos = {x:px, y:py};
+		self.oldPosition =  {x:px, y:py};
+		self.element.style.cursor = 'move';
+	};
+
+	this.upCallback  = function(px, py) {
 		self.element.style.cursor = 'default';
-		if ((self.mousedown) && (e.pageX === self.mouseDownPos.x) && (e.pageY === self.mouseDownPos.y)) {
+		if ((self.mousedown) && (px === self.mouseDownPos.x) && (py === self.mouseDownPos.y)) {
 			if (!self.playing) {
-				if ((e.pageX < self.backbtn.width * 1.5) && (e.pageY < self.backbtn.height * 1.5)) {
+				if ((px < self.backbtn.width * 1.5) && (py < self.backbtn.height * 1.5)) {
 					self.wsOsc.send('/mv/menu', 's', '');
 					window.location.href = "index.html";
 					return;
@@ -419,26 +458,12 @@ PaView.prototype.show = function() {
 		}
 		self.mousedown = false;
 	};
-	this.element.addEventListener('touchstart', function(e) {
-		console.log('touchstart');
-	});
-	this.element.addEventListener('touchend', function(e) {
-		console.log('touchend');
-	});
-	this.element.onmousedown = function(e) {
-		console.log('onmousedown');
-		if (self.ignoreEvent) {
-			self.ignoreEvent = false;
-			return;
-		}
-		self.mousedown = true;
-		self.mouseDownPos = {x:e.pageX, y:e.pageY};
-		self.oldPosition = {x:e.pageX, y:e.pageY};
-		self.element.style.cursor = 'move';
+
+	this.moveCallback  = function(x, y) {
+
 	};
 
 
-	this.element.onmousemove = function(e) { self.rotateCamera(e.pageX, e.pageY); };
 
 	// chrome / safari / IE
 	this.element.onmousewheel = function(e) {
